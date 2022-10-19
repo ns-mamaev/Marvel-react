@@ -1,69 +1,71 @@
+import { useEffect, useState } from 'react';
 import './comicsList.scss';
-import uw from '../../resources/img/UW.png';
-import xMen from '../../resources/img/x-men.png';
+import useMarvelService from '../../services/MarvelServise';
+import Spinner from '../spinner/spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
 const ComicsList = () => {
+  const [comicsList, setComicsList] = useState([]);
+  const [newItemsLoading, setNewItemsLoading] = useState(false);
+  const [offset, setOffset] = useState(200);
+  const [listEnded, setListEnded] = useState(false);
+
+  const { loading, error, getAllComics } = useMarvelService();
+
+  useEffect(() => onRequest(offset, true), []);
+
+  const onRequest = (offset, initial) => {
+    setNewItemsLoading(!initial); 
+    getAllComics(offset)
+      .then(onComicsLoad);
+  };
+
+  const onComicsLoad = (newComicsList) => {
+    if (newComicsList.length < 8) {
+      setListEnded(true);
+    }
+    setComicsList(list => ([...list, ...newComicsList ]));
+    setNewItemsLoading(false);
+    setOffset(offset => offset + 8);
+  };
+
+  const renderItems = (arr) => {
+    const items = arr.map(({ title, price, thumbnail, id }, i) => {
+      const imgStyle = thumbnail.includes('image_not_available') ? { objectFit: 'unset' } : null;
+      return (
+        <li className="comics__item" key={id}>
+          <a href="#">
+            <img 
+              src={thumbnail}
+              alt={title}
+              style={imgStyle}
+              className="comics__item-img"
+            />
+            <div className="comics__item-name">{title}</div>
+            <div className="comics__item-price">{price}</div>
+          </a>
+        </li>
+      )
+    });
+    
+    return <ul className="comics__grid">{items}</ul>;
+  }
+
+  const spinner = loading && !newItemsLoading ? <Spinner /> : null;
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const items = renderItems(comicsList);
+
     return (
         <div className="comics__list">
-            <ul className="comics__grid">
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={uw} alt="ultimate war" className="comics__item-img"/>
-                        <div className="comics__item-name">ULTIMATE X-MEN VOL. 5: ULTIMATE WAR TPB</div>
-                        <div className="comics__item-price">9.99$</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={xMen} alt="x-men" className="comics__item-img"/>
-                        <div className="comics__item-name">X-Men: Days of Future Past</div>
-                        <div className="comics__item-price">NOT AVAILABLE</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={uw} alt="ultimate war" className="comics__item-img"/>
-                        <div className="comics__item-name">ULTIMATE X-MEN VOL. 5: ULTIMATE WAR TPB</div>
-                        <div className="comics__item-price">9.99$</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={xMen} alt="x-men" className="comics__item-img"/>
-                        <div className="comics__item-name">X-Men: Days of Future Past</div>
-                        <div className="comics__item-price">NOT AVAILABLE</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={uw} alt="ultimate war" className="comics__item-img"/>
-                        <div className="comics__item-name">ULTIMATE X-MEN VOL. 5: ULTIMATE WAR TPB</div>
-                        <div className="comics__item-price">9.99$</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={xMen} alt="x-men" className="comics__item-img"/>
-                        <div className="comics__item-name">X-Men: Days of Future Past</div>
-                        <div className="comics__item-price">NOT AVAILABLE</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={uw} alt="ultimate war" className="comics__item-img"/>
-                        <div className="comics__item-name">ULTIMATE X-MEN VOL. 5: ULTIMATE WAR TPB</div>
-                        <div className="comics__item-price">9.99$</div>
-                    </a>
-                </li>
-                <li className="comics__item">
-                    <a href="#">
-                        <img src={xMen} alt="x-men" className="comics__item-img"/>
-                        <div className="comics__item-name">X-Men: Days of Future Past</div>
-                        <div className="comics__item-price">NOT AVAILABLE</div>
-                    </a>
-                </li>
-            </ul>
-            <button className="button button__main button__long">
+            {spinner}
+            {errorMessage}
+            {items}
+            <button
+              className="button button__main button__long"
+              disabled={loading}
+              onClick={() => onRequest(offset)}
+              style={{ 'display': listEnded ? 'none' : 'block' }}
+            >
                 <div className="inner">load more</div>
             </button>
         </div>

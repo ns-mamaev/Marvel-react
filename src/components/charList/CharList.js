@@ -77,7 +77,7 @@ const CharList = ({ onCharSelected }) => {
       {items}
       <button 
         className="button button__main button__long"
-        disabled={newItemsLoading}
+        disabled={loading}
         onClick={() => onRequest(offset)}
         style={{ 'display': listEnded ? 'none' : 'block' }}>
         <div className="inner">load more</div>
