@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './comicsList.scss';
 import useMarvelService from '../../services/MarvelServise';
 import Spinner from '../spinner/spinner';
@@ -30,11 +31,11 @@ const ComicsList = () => {
   };
 
   const renderItems = (arr) => {
-    const items = arr.map(({ title, price, thumbnail, id }, i) => {
+    const items = arr.map(({ title, price, thumbnail, id }) => {
       const imgStyle = thumbnail.includes('image_not_available') ? { objectFit: 'unset' } : null;
       return (
         <li className="comics__item" key={id}>
-          <a href="#">
+          <Link to={`./${id}`}>
             <img 
               src={thumbnail}
               alt={title}
@@ -43,7 +44,7 @@ const ComicsList = () => {
             />
             <div className="comics__item-name">{title}</div>
             <div className="comics__item-price">{price}</div>
-          </a>
+          </Link>
         </li>
       )
     });
