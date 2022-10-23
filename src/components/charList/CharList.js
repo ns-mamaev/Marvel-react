@@ -70,6 +70,7 @@ const CharList = ({ onCharSelected }) => {
   const spinner = loading && !newItemsLoading ? <Spinner /> : null;
   const errorMessage = error ? <ErrorMessage /> : null;
   const items = renderItems(charsList);
+  
   return (
     <div className="char__list">
       {spinner}
